@@ -31,9 +31,8 @@ import java.util.Map;
  * Created by ch on 2018/1/20.
  */
 @Service
-@Slf4j
 public class ApiGatewayHand implements InitializingBean,ApplicationContextAware{
-    //private static final Logger log = LoggerFactory.getLogger(ApiGatewayHand.class);
+    private static final Logger log = LoggerFactory.getLogger(ApiGatewayHand.class);
     private static final String METHOD = "method";
     private static final String PARAMS = "params";
 
@@ -56,19 +55,18 @@ public class ApiGatewayHand implements InitializingBean,ApplicationContextAware{
 
     public void handle(HttpServletRequest request,HttpServletResponse response){
         //参数验证
-        System.out.println("hhhhhhh"+request.getParameter(METHOD));
         String method = request.getParameter(METHOD);
         String params = request.getParameter(PARAMS);
         Object result;
         ApiRunnable apiRun;
         try{
             apiRun = sysParamsValidate(request);
-            log.info("请求接口"+method+"参数"+params);
+            log.info("请求接口:{},参数:{}",method,params);
             Object[] args = buildParams(apiRun,params,request,response);
             result = apiRun.run(args);
         } catch (ApiException e) {
             response.setStatus(500);
-            log.error("调用接口异常"+method+"参数"+params);
+            log.error("调用接口:{} 异常,{}",method,e.getMessage());
             result = handleError(e);
         }catch (InvocationTargetException e){
             response.setStatus(500);
@@ -162,7 +160,6 @@ public class ApiGatewayHand implements InitializingBean,ApplicationContextAware{
             if(json != null){
                 response.getWriter().write(json);
             }
-            System.out.println("json====="+json);
         } catch (IOException e) {
             System.out.println("服务中心响应异常"+e);
             throw new RuntimeException(e);

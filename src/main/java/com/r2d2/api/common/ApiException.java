@@ -7,11 +7,12 @@ import com.r2d2.api.core.ApiStore;
  */
 public class ApiException extends Exception {
 
-    public ApiException(String msg,Exception e){
+    public ApiException(String message,Throwable cause){
+        super(message, cause);
 
     }
 
-    public ApiException(String msg){
-
+    public ApiException(String message){
+        super(message,null);
     }
 }
