@@ -25,3 +25,4 @@ dependency-reduced-pom.xml
 .mymetadata
 /.tgitconfig
 /scope
+/out
