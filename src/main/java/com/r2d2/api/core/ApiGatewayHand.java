@@ -2,6 +2,7 @@ package com.r2d2.api.core;
 
 import com.auth0.jwt.internal.com.fasterxml.jackson.databind.SerializationFeature;
 import com.r2d2.api.common.ApiException;
+import com.r2d2.api.common.CommonError;
 import com.r2d2.api.common.UtilJson;
 import com.r2d2.api.service.GoodsServiceImp.Goods;
 import com.r2d2.api.core.ApiStore.ApiRunnable;
@@ -20,8 +21,10 @@ import org.springframework.util.StringUtils;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.math.BigInteger;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -75,6 +78,7 @@ public class ApiGatewayHand implements InitializingBean,ApplicationContextAware{
         }catch (Exception e){
             response.setStatus(500);
             log.error("其他异常"+method+"参数"+params);
+            e.printStackTrace();
             result = handleError(e);
         }
 
@@ -82,14 +86,14 @@ public class ApiGatewayHand implements InitializingBean,ApplicationContextAware{
     }
 
     public Object handleError(Throwable throwable){
-        return  null;
+        return  new CommonError("500" , throwable.getMessage());
     }
 
 
 
     public Object[] buildParams(ApiRunnable run, String paramJson, HttpServletRequest request,
                               HttpServletResponse response) throws ApiException{
-        Map<String,Object> map = null;
+        Map<String,Object> map;
         try{
             map = UtilJson.toMap(paramJson);
         }catch (IllegalArgumentException e){
@@ -118,16 +122,18 @@ public class ApiGatewayHand implements InitializingBean,ApplicationContextAware{
                     args[i] = convertJsonToBean(map.get(paramNames.get(i)),paramsTypes[i]);
                 }catch (Exception e){
                     e.printStackTrace();
+                    throw new ApiException("参数：" + paramNames.get(i) +" 错误，原因："+e.getMessage());
                 }
 
             }
         }
-
-        return  null;
+        return args;
     }
 
+    //TODO
     public Object convertJsonToBean(Object obj,Class<?> clazz){
-        return null;
+        log.info("obj=={},{}",obj,obj.getClass().getName());
+        return UtilJson.convertValue(obj,clazz);
     }
 
 
@@ -149,20 +155,28 @@ public class ApiGatewayHand implements InitializingBean,ApplicationContextAware{
 
     //205
     private void returnResult(Object result , HttpServletResponse response){
+        PrintWriter out = null;
         try{
             UtilJson.JSON_MAPPER.configure(SerializationFeature.WRITE_NULL_MAP_VALUES,true);
             String json = UtilJson.writeValuesAsString(result);
             response.setCharacterEncoding("UTF-8");
             response.setContentType("text/html/json;charset=utf-8");
+            response.setHeader("content-type", "text/json");   //返回数据为json格式
             response.setHeader("Cache-Control","no-cache");
             response.setHeader("Pragma","no-cache");
             response.setDateHeader("Expires",0);
             if(json != null){
-                response.getWriter().write(json);
+                out = response.getWriter();
+                out.write(json);
             }
+            //log.info("返回信息：{}",json);
         } catch (IOException e) {
             System.out.println("服务中心响应异常"+e);
             throw new RuntimeException(e);
+        } finally {
+            if (out != null) {
+                out.close();
+            }
         }
     }
 

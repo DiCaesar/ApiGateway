@@ -1,43 +1,21 @@
 package com.r2d2.api.service;
 
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
+
+import java.util.Date;
+
 /**
- * Created by Administrator on 2018/1/20.
+ * Created by ch on 2018/1/20.
  */
+@Getter
+@Setter
+@ToString
 public class UserInfo {
     private String name;
     private String sex;
     private Long userId;
     private String idCard;
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getSex() {
-        return sex;
-    }
-
-    public void setSex(String sex) {
-        this.sex = sex;
-    }
-
-    public Long getUserId() {
-        return userId;
-    }
-
-    public void setUserId(Long userId) {
-        this.userId = userId;
-    }
-
-    public String getIdCard() {
-        return idCard;
-    }
-
-    public void setIdCard(String idCard) {
-        this.idCard = idCard;
-    }
+    private Date date;
 }

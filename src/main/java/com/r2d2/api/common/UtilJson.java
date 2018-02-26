@@ -5,6 +5,7 @@ import com.auth0.jwt.internal.com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.util.StringUtils;
 
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.Map;
 
 /**
@@ -12,8 +13,11 @@ import java.util.Map;
  */
 public class UtilJson {
 
-    public static final ObjectMapper JSON_MAPPER = new ObjectMapper();
-
+    public static  ObjectMapper JSON_MAPPER = new ObjectMapper();
+    static {
+        SimpleDateFormat fmt = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        JSON_MAPPER.setDateFormat(fmt);
+    }
 
     public static String writeValuesAsString(Object obj){
         if(null == obj) return null;
